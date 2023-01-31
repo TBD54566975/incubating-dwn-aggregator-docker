@@ -1,0 +1,24 @@
+name: Container Image Build and Publish
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile.publish --tag ${{ env.GITHUB_REPOSITORY }}:$(date +%Y-%m-%d-%H%M%S)
+    - name: Publish the Docker image
+      uses: docker/publish-docker-image-action@v1
+      with:
+        context: .
+        tags: ${{ env.GITHUB_REPOSITORY }}:$(date +%Y-%m-%d-%H%M%S)
+        push_args: --disable-content-trust=false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
